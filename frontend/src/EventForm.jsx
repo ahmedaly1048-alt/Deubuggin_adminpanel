@@ -8,21 +8,61 @@ export function EventForm({ mode }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const editing = mode === "edit";
-  const [event, setEvent] = useState({});
+
+  // Initial state
+  const [event, setEvent] = useState({
+    title: "",
+    description: "",
+    kind: "",
+    event_date: "",
+    join_start: "",
+    join_end: "",
+    exposure_pre_start: "",
+    exposure_pre_end: "",
+    exposure_main_start: "",
+    exposure_main_end: "",
+    status: 1,
+    status_message: "",
+  });
+
   const [loading, setLoading] = useState(editing);
   const [saving, setSaving] = useState(false);
 
+  // Format backend dates to YYYY-MM-DD
+  const formatDate = (val) => {
+    if (!val) return "";
+    if (val.includes("T")) return val.split("T")[0];
+    return val;
+  };
+
+  // Load event if editing
   useEffect(() => {
     if (!editing) return;
 
     let mounted = true;
+
     const load = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/events/${id}`);
+        const res = await fetch(`http://localhost:5000/events/${id}`, {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        });
         const data = await res.json();
-        if (mounted) setEvent(data);
-      } catch (e) {
-        console.error(e);
+        if (mounted) {
+          setEvent({
+            ...data,
+            event_date: formatDate(data.event_date),
+            join_start: formatDate(data.join_start),
+            join_end: formatDate(data.join_end),
+            exposure_pre_start: formatDate(data.exposure_pre_start),
+            exposure_pre_end: formatDate(data.exposure_pre_end),
+            exposure_main_start: formatDate(data.exposure_main_start),
+            exposure_main_end: formatDate(data.exposure_main_end),
+            status: data.status || 1,
+            status_message: data.status_message || "",
+          });
+        }
+      } catch (err) {
+        console.error(err);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -33,32 +73,14 @@ export function EventForm({ mode }) {
   }, [editing, id]);
 
   if (editing && loading) return <div>Loading event…</div>;
-  const defaults = event ?? {};
-
-  const toMySQLDate = (val) => {
-    if (!val || val.trim() === "") return null;
-    return val.split("T")[0];
-  };
 
   const submit = async (e) => {
     e.preventDefault();
     setSaving(true);
 
-    const form = Object.fromEntries(new FormData(e.target).entries());
-
     const payload = {
-      title: form.title,
-      description: form.description,
-      kind: form.kind,
-      event_date: toMySQLDate(form.event_date),
-      status: Number(form.status) || 1,
-      status_message: form.status_message || "",
-      join_start: toMySQLDate(form.join_start),
-      join_end: toMySQLDate(form.join_end),
-      exposure_pre_start: toMySQLDate(form.exposure_pre_start),
-      exposure_pre_end: toMySQLDate(form.exposure_pre_end),
-      exposure_main_start: toMySQLDate(form.exposure_main_start),
-      exposure_main_end: toMySQLDate(form.exposure_main_end),
+      ...event,
+      status: Number(event.status) || 1,
     };
 
     try {
@@ -70,7 +92,7 @@ export function EventForm({ mode }) {
         method: editing ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${getToken()}`,
+          Authorization: `Bearer ${getToken()}`,
         },
         body: JSON.stringify(payload),
       });
@@ -101,7 +123,7 @@ export function EventForm({ mode }) {
 
         {editing && (
           <Link
-            to={`/events/${defaults.id}`}
+            to={`/events/${id}`}
             className="flex items-center gap-2 text-cyan-500 border px-2 py-2 rounded-lg"
           >
             <ArrowLeft size={18} /> Back
@@ -114,24 +136,36 @@ export function EventForm({ mode }) {
         onSubmit={submit}
       >
         {editing && (
-          <Input label="ID" name="id" defaultValue={defaults.id} readOnly />
+          <Input label="ID" name="id" value={id} readOnly />
         )}
 
-        <Input name="title" label="Title" defaultValue={defaults.title} />
+        <Input
+          name="title"
+          label="Title"
+          value={event.title}
+          onChange={(e) => setEvent({ ...event, title: e.target.value })}
+        />
 
         <Input
           name="description"
           label="Description"
-          defaultValue={defaults.description}
+          value={event.description}
+          onChange={(e) => setEvent({ ...event, description: e.target.value })}
         />
 
-        <Input name="kind" label="Kind" defaultValue={defaults.kind} />
+        <Input
+          name="kind"
+          label="Kind"
+          value={event.kind}
+          onChange={(e) => setEvent({ ...event, kind: e.target.value })}
+        />
 
         <Input
           name="event_date"
           type="date"
           label="Event Date"
-          defaultValue={defaults.event_date ?? ""}
+          value={event.event_date}
+          onChange={(e) => setEvent({ ...event, event_date: e.target.value })}
         />
 
         {/* Status */}
@@ -139,7 +173,10 @@ export function EventForm({ mode }) {
           Status
           <select
             name="status"
-            defaultValue={Number(defaults.status) || 1}
+            value={event.status}
+            onChange={(e) =>
+              setEvent({ ...event, status: Number(e.target.value) })
+            }
             className="mt-1 block w-full rounded bg-gray-200 border border-gray-300 p-2"
           >
             <option value={1}>Active</option>
@@ -151,7 +188,10 @@ export function EventForm({ mode }) {
         <Input
           name="status_message"
           label="Status Message"
-          defaultValue={defaults.status_message || ""}
+          value={event.status_message}
+          onChange={(e) =>
+            setEvent({ ...event, status_message: e.target.value })
+          }
         />
 
         {/* Date Fields */}
@@ -159,42 +199,56 @@ export function EventForm({ mode }) {
           name="join_start"
           type="date"
           label="Join Start"
-          defaultValue={defaults.join_start ?? ""}
+          value={event.join_start}
+          onChange={(e) => setEvent({ ...event, join_start: e.target.value })}
         />
 
         <Input
           name="join_end"
           type="date"
           label="Join End"
-          defaultValue={defaults.join_end ?? ""}
+          value={event.join_end}
+          onChange={(e) => setEvent({ ...event, join_end: e.target.value })}
         />
 
         <Input
           name="exposure_pre_start"
           type="date"
           label="Pre Exposure Start"
-          defaultValue={defaults.exposure_pre_start ?? ""}
+          value={event.exposure_pre_start}
+          onChange={(e) =>
+            setEvent({ ...event, exposure_pre_start: e.target.value })
+          }
         />
 
         <Input
           name="exposure_pre_end"
           type="date"
           label="Pre Exposure End"
-          defaultValue={defaults.exposure_pre_end ?? ""}
+          value={event.exposure_pre_end}
+          onChange={(e) =>
+            setEvent({ ...event, exposure_pre_end: e.target.value })
+          }
         />
 
         <Input
           name="exposure_main_start"
           type="date"
           label="Main Exposure Start"
-          defaultValue={defaults.exposure_main_start ?? ""}
+          value={event.exposure_main_start}
+          onChange={(e) =>
+            setEvent({ ...event, exposure_main_start: e.target.value })
+          }
         />
 
         <Input
           name="exposure_main_end"
           type="date"
           label="Main Exposure End"
-          defaultValue={defaults.exposure_main_end ?? ""}
+          value={event.exposure_main_end}
+          onChange={(e) =>
+            setEvent({ ...event, exposure_main_end: e.target.value })
+          }
         />
 
         <div className="flex gap-3 mt-4">
@@ -208,9 +262,7 @@ export function EventForm({ mode }) {
 
           <button
             type="button"
-            onClick={() =>
-              navigate(editing ? `/events/${defaults.id}` : "/events")
-            }
+            onClick={() => navigate(editing ? `/events/${id}` : "/events")}
             className="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded"
           >
             Cancel
@@ -221,6 +273,7 @@ export function EventForm({ mode }) {
   );
 }
 
+// Reusable Input component
 function Input({ label, ...props }) {
   return (
     <label className="block text-sm">

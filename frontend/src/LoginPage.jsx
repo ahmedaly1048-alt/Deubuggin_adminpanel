@@ -1,4 +1,3 @@
-// LoginPage.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRightIcon } from "lucide-react";
@@ -33,7 +32,9 @@ export default function LoginPage() {
 
       if (res.ok && data.token) {
         saveToken(data.token);
-        navigate("/dashboard");
+
+        // Navigate to dashboard and replace login page in history
+        navigate("/dashboard", { replace: true });
       } else {
         setError(data.message || "Invalid admin ID or password.");
       }

@@ -1,4 +1,4 @@
-// server.js (plain password version)
+require("dotenv").config(); // <-- add this at the top
 
 const express = require("express");
 const mysql = require("mysql2");
@@ -12,24 +12,26 @@ app.use(express.json());
 // ------------------------
 // Configuration
 // ------------------------
-const JWT_SECRET = process.env.JWT_SECRET || "SUPER_SECRET_KEY_2025";
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES = "8h";
 
 // ------------------------
 // MySQL connection
 // ------------------------
 const db = mysql.createConnection({
-  host: "151.106.113.26",
-  user: "nftsns02",
-  password: "NN9CNXJ3",
-  database: "nftsns",
-  port: 55681,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
 });
 
 db.connect((err) => {
   if (err) console.error("DB connection failed:", err);
   else console.log("DB connected successfully!");
 });
+
 
 // ------------------------
 // Helpers
@@ -480,5 +482,4 @@ app.get(
 );
 
 // ------------------------
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

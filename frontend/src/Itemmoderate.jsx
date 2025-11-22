@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { getToken } from "./utils";
+import { formatDate } from "./formatdate";
 
 // Premium Toast identical to UsersList
 function Toast({ message, onClose }) {
@@ -105,27 +106,66 @@ export default function ItemModerate() {
       </div>
 
       {/* Item Details */}
-      <div className="bg-gray-200 p-4 rounded border border-gray-300 mb-4">
-        <ul className="space-y-2">
-          <li><strong>ID:</strong> {item.id}</li>
-          <li><strong>User ID:</strong> {item.user_id}</li>
-          <li><strong>Name:</strong> {item.name}</li>
-          <li><strong>URL Storage:</strong> {item.url_storage}</li>
-          <li><strong>Description:</strong> {item.description}</li>
-          <li><strong>Status:</strong> {item.status}</li>
-          <li><strong>Status Message:</strong> {item.status_message}</li>
-          <li><strong>Event ID:</strong> {item.event_id}</li>
-          <li><strong>Created At:</strong> {item.createdat}</li>
-          <li><strong>Updated At:</strong> {item.updatedat}</li>
-          <li>
-            <strong>URL Thumbnail:</strong>{" "}
-            {item.url_thumbnail ? (
-              <a href={item.url_thumbnail} target="_blank" rel="noreferrer">View</a>
-            ) : (
-              "-"
-            )}
-          </li>
-        </ul>
+      <div className="  rounded mb-4 overflow-x-auto">
+        <table className="min-w-full border border-gray-300">
+          <tbody>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">ID</td>
+              <td className="px-4 py-2">{item.id}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">User ID</td>
+              <td className="px-4 py-2">{item.user_id}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Name</td>
+              <td className="px-4 py-2">{item.name}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">URL Storage</td>
+              <td className="px-4 py-2">{item.url_storage}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Description</td>
+              <td className="px-4 py-2">{item.description}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Status</td>
+              <td className="px-4 py-2">{item.status}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Status Message</td>
+              <td className="px-4 py-2">{item.status_message}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Event ID</td>
+              <td className="px-4 py-2">{item.event_id}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Created At</td>
+              <td className="px-4 py-2 whitespace-nowrap">{formatDate(item.createdat)}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Updated At</td>
+              <td className="px-4 py-2">{formatDate(item.updatedat)}</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 font-semibold">URL Thumbnail</td>
+              <td className="px-4 py-2">
+                {item.url_thumbnail ? (
+                  <img
+                    src={item.url_thumbnail}
+                    alt="Thumbnail"
+                    className="w-24 h-24 object-cover rounded border border-gray-300"
+                  />
+                ) : (
+                  "-"
+                )}
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       {/* Action Buttons */}

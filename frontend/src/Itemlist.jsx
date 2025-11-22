@@ -1,14 +1,16 @@
 // ItemsList.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Search , ArrowUp , ArrowDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, Search, ArrowUp, ArrowDown } from "lucide-react";
 import Table from "./Table";
 import { getToken } from "./utils";
 import { limit } from "./config";
+import { formatDate } from "./formatdate";
+
 
 export default function ItemsList() {
   const [items, setItems] = useState([]);
-  const [total, setTotal] = useState(0); // ✅ NEW: backend total count
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [offset, setOffset] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,16 +26,13 @@ export default function ItemsList() {
           searchTerm
         )}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       const data = await res.json();
-
       setItems(Array.isArray(data.items) ? data.items : []);
-      setTotal(data.total || 0); // ✅ NEW
+      setTotal(data.total || 0);
     } catch (err) {
       console.error("Failed to fetch items:", err);
       setItems([]);
@@ -59,7 +58,6 @@ export default function ItemsList() {
 
   const currentPage = Math.floor(offset / limit) + 1;
   const totalPages = Math.ceil(total / limit);
-
   const rangeStart = total === 0 ? 0 : offset + 1;
   const rangeEnd = Math.min(offset + limit, total);
 
@@ -67,7 +65,6 @@ export default function ItemsList() {
     <div>
       <h2 className="text-2xl font-bold mb-4">Items</h2>
 
-  
       {/* Search + Sort */}
       <div className="flex gap-2 mb-4 items-center">
         <div className="relative w-72">
@@ -88,24 +85,15 @@ export default function ItemsList() {
 
         {["id", "name", "status"].map((field) => (
           <button
-    key={field}
-    onClick={() => toggleSort(field)}
-    className="px-3 py-1 bg-cyan-300 hover:bg-cyan-200 rounded transition flex items-center gap-2"
-  >
-    Sort by {field.charAt(0).toUpperCase() + field.slice(1)}
-
-    {/* ICONS */}
-    {sortBy === field && (
-      sortOrder === "asc" ? (
-        <ArrowUp size={16} />
-      ) : (
-        <ArrowDown size={16} />
-      )
-    )}
-  </button>
+            key={field}
+            onClick={() => toggleSort(field)}
+            className="px-3 py-1 bg-cyan-300 hover:bg-cyan-200 rounded transition flex items-center gap-2"
+          >
+            Sort by {field.charAt(0).toUpperCase() + field.slice(1)}
+            {sortBy === field &&
+              (sortOrder === "asc" ? <ArrowUp size={16} /> : <ArrowDown size={16} />)}
+          </button>
         ))}
-
-        
       </div>
 
       {loading ? (
@@ -114,9 +102,18 @@ export default function ItemsList() {
         <>
           <Table
             columns={[
-              "ID", "User ID", "Name", "URL Storage", "Description", "Status",
-              "Event ID", "Status Message", "Created At", "Updated At",
-              "URL Thumbnail", "Open"
+              "ID",
+              "User ID",
+              "Name",
+              "URL Storage",
+              "Description",
+              "Status",
+              "Event ID",
+              "Status Message",
+              "Created At",
+              "Updated At",
+              "Thumbnail",
+              "Open",
             ]}
             rows={items.map((i) => [
               i.id ?? "-",
@@ -127,34 +124,51 @@ export default function ItemsList() {
               i.status ?? "-",
               i.event_id ?? "-",
               i.status_message ?? "-",
-              i.createdat ?? "-",
-              i.updatedat ?? "-",
+
+              // DATE FIELDS (NON-WRAPPING)
+              <div className="whitespace-nowrap">
+                <div className="whitespace-nowrap">{formatDate(i.createdat)}</div>
+              </div>,
+
+              <div className="whitespace-nowrap">
+                <div className="whitespace-nowrap">{formatDate(i.updatedat)}</div>
+              </div>,
+
+              // THUMBNAIL PREVIEW
               i.url_thumbnail ? (
                 <a
                   href={i.url_thumbnail}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 font-semibold underline flex "
+                  className="flex justify-center"
                 >
-                  View 
+                  <img
+                    src={i.url_thumbnail}
+                    alt="thumbnail"
+                    className="h-12 w-12 object-cover rounded border border-gray-300 hover:opacity-80 transition"
+                  />
                 </a>
-              ) : "-",
-              <Link className="text-cyan-400 font-semibold underline flex " to={`/items/${i.id}`}>
-                Open 
+              ) : (
+                "-"
+              ),
+
+              // OPEN LINK
+              <Link
+                className="text-cyan-400 font-semibold underline flex"
+                to={`/items/${i.id}`}
+              >
+                Open
               </Link>,
             ])}
           />
 
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4">
-
-            {/* Left: Showing X–Y of Total */}
             <div className="text-gray-700 font-small">
-              Showing <b>{rangeStart}</b>– <b>{rangeEnd} </b>of <b>{total}</b>
+              Showing <b>{rangeStart}</b>–<b>{rangeEnd}</b> of <b>{total}</b>
             </div>
 
             <div className="flex gap-2">
-
               <button
                 onClick={() => setOffset(Math.max(0, offset - limit))}
                 disabled={offset === 0}
@@ -172,11 +186,9 @@ export default function ItemsList() {
               </button>
             </div>
 
-            {/* Right: Page X of Y */}
             <div className="text-gray-700 font-small">
               Page <b>{currentPage}</b> of <b>{totalPages}</b>
             </div>
-
           </div>
         </>
       )}

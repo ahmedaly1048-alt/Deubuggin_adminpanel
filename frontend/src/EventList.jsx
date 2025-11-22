@@ -12,6 +12,9 @@ import {
 import { getToken } from "./utils";
 import { limit } from "./config";
 
+// ⬅️ NEW: import date formatter
+import { formatDate } from "./formatdate";
+
 export default function EventsList() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,10 +63,8 @@ export default function EventsList() {
     setOffset(0);
   };
 
-  // NEW — match ItemsList pagination style
   const currentPage = Math.floor(offset / limit) + 1;
   const totalPages = Math.ceil(totalItems / limit);
-
   const rangeStart = totalItems === 0 ? 0 : offset + 1;
   const rangeEnd = Math.min(offset + limit, totalItems);
 
@@ -153,20 +154,20 @@ export default function EventsList() {
                   <th
                     key={i}
                     className={`p-3.5 border-b border-gray-300 ${[
-                        "ID",
-                        "Kind",
-                        "Event Date",
-                        "Join Start",
-                        "Join End",
-                        "Pre Exposure Start",
-                        "Pre Exposure End",
-                        "Main Exposure Start",
-                        "Main Exposure End",
-                        "Created",
-                        "Updated",
-                      ].includes(c)
-                        ? "text-center"
-                        : "text-left max-w-[150px] truncate"
+                      "ID",
+                      "Kind",
+                      "Event Date",
+                      "Join Start",
+                      "Join End",
+                      "Pre Exposure Start",
+                      "Pre Exposure End",
+                      "Main Exposure Start",
+                      "Main Exposure End",
+                      "Created",
+                      "Updated",
+                    ].includes(c)
+                      ? "text-center"
+                      : "text-left max-w-[150px] truncate"
                       }`}
                   >
                     {c}
@@ -186,36 +187,40 @@ export default function EventsList() {
                   <td className="p-3.5 border-b border-gray-300 text-center">
                     {e.kind ?? "-"}
                   </td>
-                  <td className="p-3.5 border-b border-gray-300 text-center">
-                    {e.event_date ?? "-"}
+
+                  {/* formatted dates */}
+                  <td className="p-3.5 border-b border-gray-300 text-center whitespace-nowrap">
+                    {formatDate(e.createdat)}
                   </td>
                   <td className="p-3.5 border-b border-gray-300 max-w-xs truncate">
                     {e.status_message ?? "unknown"}
                   </td>
-                  <td className="p-3.5 border-b border-gray-300 text-center">
-                    {e.join_start ?? "-"}
+                  <td className="p-3.5 border-b border-gray-300 text-center whitespace-nowrap">
+                    {formatDate(e.join_start)}
                   </td>
-                  <td className="p-3.5 border-b border-gray-300 text-center">
-                    {e.join_end ?? "-"}
+                  <td className="p-3.5 border-b border-gray-300 text-center whitespace-nowrap">
+                    {formatDate(e.join_end)}
                   </td>
-                  <td className="p-3.5 border-b border-gray-300 text-center">
-                    {e.exposure_pre_start ?? "-"}
+                  <td className="p-3.5 border-b border-gray-300 text-center whitespace-nowrap">
+                    {formatDate(e.exposure_pre_start)}
                   </td>
-                  <td className="p-3.5 border-b border-gray-300 text-center">
-                    {e.exposure_pre_end ?? "-"}
+                  <td className="p-3.5 border-b border-gray-300 text-center whitespace-nowrap">
+                    {formatDate(e.exposure_pre_end)}
                   </td>
-                  <td className="p-3.5 border-b border-gray-300 text-center">
-                    {e.exposure_main_start ?? "-"}
+                  <td className="p-3.5 border-b border-gray-300 text-center whitespace-nowrap">
+                    {formatDate(e.exposure_main_start)}
                   </td>
-                  <td className="p-3.5 border-b border-gray-300 text-center">
-                    {e.exposure_main_end ?? "-"}
+                  <td className="p-3.5 border-b border-gray-300 text-center whitespace-nowrap">
+                    {formatDate(e.exposure_main_end)}
                   </td>
-                  <td className="p-3.5 border-b border-gray-300 text-center hidden sm:table-cell">
-                    {e.createdat ?? "-"}
+
+                  <td className="p-3.5 border-b border-gray-300 text-center whitespace-nowrap">
+                    {formatDate(e.createdat)}
                   </td>
-                  <td className="p-3.5 border-b border-gray-300 text-center hidden sm:table-cell">
-                    {e.updatedat ?? "-"}
+                  <td className="p-3.5 border-b border-gray-300 text-center whitespace-nowrap">
+                    {formatDate(e.updatedat)}
                   </td>
+
                   <td className="p-3.5 border-b border-gray-300 text-center">
                     <Link
                       to={`/events/${e.id}`}
@@ -231,14 +236,12 @@ export default function EventsList() {
         )}
       </div>
 
-      {/* Pagination — SAME STYLE AS ITEMS LIST */}
+      {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
-
         <div className="font-small text-gray-600">
           Showing <b>{rangeStart}</b> - <b>{rangeEnd}</b> of <b>{totalItems}</b>
         </div>
 
-        {/* Center: Buttons */}
         <div className="flex gap-2">
           <button
             onClick={() => setOffset(Math.max(0, offset - limit))}

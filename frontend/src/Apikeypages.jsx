@@ -4,6 +4,7 @@ import Table from "./Table";
 import { getToken } from "./utils";
 import { Search, ArrowUp, ArrowDown,ArrowLeft , ArrowRight } from "lucide-react";
 import { limit } from "./config.js";
+import { formatDate } from "./formatdate.js";
 
 export default function ApiKeysPage() {
   const [keys, setKeys] = useState([]);
@@ -143,8 +144,8 @@ export default function ApiKeysPage() {
               k.action ?? "-",
               k.status ?? "-",
               k.status_message ?? "-",
-              k.createdat ?? "-",
-              k.updatedat ?? "-",
+              formatDate(k.createdat),
+              formatDate(k.updatedat),
             ])}
           />
 

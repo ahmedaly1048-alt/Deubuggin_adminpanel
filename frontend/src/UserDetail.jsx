@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import Table from "./Table";
 import { getToken } from "./utils";
 import { useNavigate } from "react-router-dom";
+import { formatDate } from "./formatdate";
 
 export default function UserDetail() {
   const navigate = useNavigate()
@@ -93,10 +94,46 @@ export default function UserDetail() {
         </button>
       </div>
 
-      {/* User JSON */}
-      <div className="bg-gray-200 p-4 rounded mb-4 border border-gray-300">
-        <pre>{JSON.stringify(user, null, 2)}</pre>
+      {/* User Details Table */}
+      <div className=" rounded mb-6 border border-gray-300 overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <tbody>
+            <tr>
+              <th className="px-4 py-2 border-b border-gray-300 font-medium">ID</th>
+              <td className="px-4 py-2 border-b border-gray-300">{user.id ?? "-"}</td>
+            </tr>
+            <tr>
+              <th className="px-4 py-2 border-b border-gray-300 font-medium">Username</th>
+              <td className="px-4 py-2 border-b border-gray-300">{user.username ?? "-"}</td>
+            </tr>
+            <tr>
+              <th className="px-4 py-2 border-b border-gray-300 font-medium">Email</th>
+              <td className="px-4 py-2 border-b border-gray-300">{user.email ?? "-"}</td>
+            </tr>
+            <tr>
+              <th className="px-4 py-2 border-b border-gray-300 font-medium">Phone</th>
+              <td className="px-4 py-2 border-b border-gray-300">{user.phone ?? "-"}</td>
+            </tr>
+            <tr>
+              <th className="px-4 py-2 border-b border-gray-300 font-medium">Status</th>
+              <td className="px-4 py-2 border-b border-gray-300">{user.status ?? "-"}</td>
+            </tr>
+            <tr>
+              <th className="px-4 py-2 border-b border-gray-300 font-medium">Level</th>
+              <td className="px-4 py-2 border-b border-gray-300">{user.level ?? "-"}</td>
+            </tr>
+            <tr>
+              <th className="px-4 py-2 border-b border-gray-300 font-medium">Created At</th>
+              <td className="px-4 py-2 border-b border-gray-300">{formatDate(user.createdat)}</td>
+            </tr>
+            <tr>
+              <th className="px-4 py-2 border-b border-gray-300 font-medium">Updated At</th>
+              <td className="px-4 py-2 border-b border-gray-300">{formatDate(user.updatedat)}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
 
       <h3 className="text-2xl mb-4 font-bold">Uploaded Items</h3>
 
@@ -128,8 +165,8 @@ export default function UserDetail() {
               i.status ?? "-",
               i.event_id ?? "-",
               i.status_message ?? "-",
-              i.createdat ?? "-",
-              i.updatedat ?? "-",
+              formatDate(i.createdat),
+              formatDate(i.updatedat),
               i.url_thumbnail ? (
                 <img
                   src={i.url_thumbnail}

@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRightIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 import { saveToken } from "./utils";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [password, setPassword] = useState(""); // controlled password
 
   async function submit(e) {
     e.preventDefault();
     const adminId = e.target.adminId.value.trim();
-    const password = e.target.password.value.trim();
 
     if (!adminId || !password) {
       setError("Please enter admin ID and password.");
@@ -32,8 +33,6 @@ export default function LoginPage() {
 
       if (res.ok && data.token) {
         saveToken(data.token);
-
-        // Navigate to dashboard and replace login page in history
         navigate("/dashboard", { replace: true });
       } else {
         setError(data.message || "Invalid admin ID or password.");
@@ -61,12 +60,31 @@ export default function LoginPage() {
           className="w-full bg-gray-200 p-2 rounded border border-gray-900/30"
           placeholder="Username"
         />
-        <input
-          name="password"
-          type="password"
-          className="w-full bg-gray-200 p-2 rounded border border-gray-900/30"
-          placeholder="Password"
-        />
+
+        {/* Password Field with Custom Toggle */}
+        <div className="w-full flex items-center bg-gray-200 p-2 rounded border border-gray-900/30">
+          <input
+            name="password"
+            type="text" // always text to prevent browser eye icon
+            className="w-full bg-transparent outline-none"
+            placeholder="Password"
+            autoComplete="off"
+            spellCheck="false"
+            value={showPassword ? password : password.replace(/./g, "•")} // mask manually
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="text-gray-600 hover:text-gray-900 ml-2"
+          >
+            {showPassword ? (
+              <EyeOffIcon className="w-5 h-5" />
+            ) : (
+              <EyeIcon className="w-5 h-5" />
+            )}
+          </button>
+        </div>
 
         <button
           disabled={loading}

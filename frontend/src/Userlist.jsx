@@ -5,6 +5,7 @@ import Table from "./Table";
 import { getToken } from "./utils";
 import { Search, ArrowUp, ArrowDown, ArrowRight, ArrowLeft } from "lucide-react";
 import { limit } from "./config";
+import { formatDate } from "./formatdate";
 
 // Simple premium toast component
 function Toast({ message, onClose }) {
@@ -171,8 +172,8 @@ export default function UsersList() {
               u.phone ?? "-",
               u.status ?? "-",
               u.level ?? "-",
-              u.createdat ?? "-",
-              u.updatedat ?? "-",
+              formatDate(u.createdat),
+              formatDate(u.updatedat),
 
               <div className="flex flex-col gap-2">
                 {u.status === 2 ? (

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { getToken } from "./utils";
+import { formatDate } from "./formatdate";
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -83,24 +84,68 @@ export default function EventDetail() {
         </div>
       </div>
 
-      {/* Details */}
-      <div className="bg-white p-5 rounded-xl shadow border border-gray-200 space-y-3">
-
-        <div><b>Event Title:</b> {e.name}</div>   {/* <-- Added here */}
-
-        <div><b>Kind:</b> {e.kind}</div>
-        <div><b>Status:</b> {e.status}</div>
-        <div><b>Event Date:</b> {e.event_date}</div>
-        <div><b>Join Start:</b> {e.join_start}</div>
-        <div><b>Join End:</b> {e.join_end}</div>
-        <div><b>Pre Exposure Start:</b> {e.exposure_pre_start}</div>
-        <div><b>Pre Exposure End:</b> {e.exposure_pre_end}</div>
-        <div><b>Main Exposure Start:</b> {e.exposure_main_start}</div>
-        <div><b>Main Exposure End:</b> {e.exposure_main_end}</div>
-        <div><b>Created:</b> {e.created}</div>
-        <div><b>Updated:</b> {e.updated}</div>
-        <div><b>Description:</b> {e.description}</div>
+      {/* Event Details */}
+      <div className="rounded mb-4 overflow-x-auto">
+        <table className="min-w-full border border-gray-300">
+          <tbody>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Event Title</td>
+              <td className="px-4 py-2">{e.name}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Kind</td>
+              <td className="px-4 py-2">{e.kind}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Status</td>
+              <td className="px-4 py-2">{e.status}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Event Date</td>
+              <td className="px-4 py-2">{formatDate(e.event_date)}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Join Start</td>
+              <td className="px-4 py-2">{formatDate(e.join_start)}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Join End</td>
+              <td className="px-4 py-2">{formatDate(e.join_end)}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Pre Exposure Start</td>
+              <td className="px-4 py-2">{formatDate(e.exposure_pre_start)}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Pre Exposure End</td>
+              <td className="px-4 py-2">{formatDate(e.exposure_pre_end)}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Main Exposure Start</td>
+              <td className="px-4 py-2">{formatDate(e.exposure_main_start)}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Main Exposure End</td>
+              <td className="px-4 py-2">{formatDate(e.exposure_main_end)}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Created At</td>
+              <td className="px-4 py-2">{formatDate(e.created)}</td>
+            </tr>
+            <tr className="border-b border-gray-300">
+              <td className="px-4 py-2 font-semibold">Updated At</td>
+              <td className="px-4 py-2">{formatDate(e.updated)}</td>
+            </tr>
+            <tr>
+              <td className="px-4 py-2 font-semibold">Description</td>
+              <td className="px-4 py-2">{e.description}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+
+
     </div>
   );
 }

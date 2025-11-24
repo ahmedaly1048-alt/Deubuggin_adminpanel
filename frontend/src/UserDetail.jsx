@@ -141,10 +141,10 @@ export default function UserDetail() {
         <div>No items uploaded by this user.</div>
       ) : (
         <>
-          {/* ITEMS TABLE */}
           <Table
             columns={[
               "ID",
+              "Thumbnail",
               "Name",
               "URL",
               "Description",
@@ -153,10 +153,19 @@ export default function UserDetail() {
               "Status Message",
               "Created At",
               "Updated At",
-              "Thumbnail",
+              "Detail",   // <-- NEW COLUMN
             ]}
             rows={userItems.map((i) => [
               i.id ?? "-",
+              i.url_thumbnail ? (
+                <img
+                  src={i.url_thumbnail}
+                  alt={i.name}
+                  className="h-12 w-12 object-cover"
+                />
+              ) : (
+                "-"
+              ),
               i.name ?? "-",
               <a href={i.url_storage} target="_blank" rel="noopener noreferrer">
                 Link
@@ -167,15 +176,14 @@ export default function UserDetail() {
               i.status_message ?? "-",
               formatDate(i.createdat),
               formatDate(i.updatedat),
-              i.url_thumbnail ? (
-                <img
-                  src={i.url_thumbnail}
-                  alt={i.name}
-                  className="h-12 w-12 object-cover"
-                />
-              ) : (
-                "-"
-              ),
+
+              // NEW DETAIL LINK
+              <a
+                className="text-cyan-500 underline font-semibold"
+                href={`/items/${i.id}`}
+              >
+                Open
+              </a>,
             ])}
           />
 

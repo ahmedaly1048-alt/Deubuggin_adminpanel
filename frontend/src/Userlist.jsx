@@ -12,7 +12,7 @@ function Toast({ message, onClose }) {
   if (!message) return null;
 
   return (
-    <div className="fixed left-1/2 -translate-x-1/3 top-10 z-50">
+    <div className="fixed left-1/2 -translate-x-1/2 top-10 z-50">
       <div className="bg-black text-white px-5 py-3 rounded-xl shadow-2xl animate-slide-up flex items-center gap-3 min-w-[200px] justify-between">
         <span className="font-semibold text-lg">{message}</span>
         <button onClick={onClose} className="text-white font-bold">×</button>
@@ -75,12 +75,19 @@ export default function UsersList() {
     setLoading(false);
   };
 
+  // Load users when offset, search, or sort changes
   useEffect(() => {
     loadUsers();
   }, [offset, search, sortBy, sortOrder]);
 
+  // Reset page to 1 when search or sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+    setOffset(0);
+  }, [search, sortBy, sortOrder]);
+
   // --------------------------------------------------
-  // Update Status + Premium Toast
+  // Update Status + Toast
   // --------------------------------------------------
   const updateStatus = async (id, newStatus) => {
     try {
@@ -119,6 +126,13 @@ export default function UsersList() {
     setOffset(0);
   };
 
+  // Pagination
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setOffset((page - 1) * limit);
+    setCurrentPage(page);
+  };
+
   if (loading) return <div>Loading users…</div>;
 
   return (
@@ -134,10 +148,7 @@ export default function UsersList() {
             type="text"
             placeholder="Search users…"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setOffset(0);
-            }}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full pr-10 pl-3 py-2 border border-cyan-300 rounded bg-gray-200 focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 transition"
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
@@ -174,7 +185,6 @@ export default function UsersList() {
               u.level ?? "-",
               formatDate(u.createdat),
               formatDate(u.updatedat),
-
               <div className="flex flex-col gap-2">
                 {u.status === 2 ? (
                   <button
@@ -210,7 +220,6 @@ export default function UsersList() {
                   )
                 )}
               </div>,
-
               <Link className="text-cyan-400 font-semibold underline" to={`/users/${u.id}`}>
                 Open
               </Link>,
@@ -225,7 +234,7 @@ export default function UsersList() {
 
             <div className="flex gap-2">
               <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
                 className="px-3 py-1 bg-cyan-400 rounded hover:bg-cyan-500 transition disabled:bg-cyan-200 disabled:cursor-not-allowed flex items-center gap-1"
               >
@@ -233,7 +242,7 @@ export default function UsersList() {
               </button>
 
               <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 className="px-3 py-1 bg-cyan-400 rounded hover:bg-cyan-500 transition disabled:bg-cyan-200 disabled:cursor-not-allowed flex items-center gap-1"
               >

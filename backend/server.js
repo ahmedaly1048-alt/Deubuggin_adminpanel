@@ -79,13 +79,14 @@ function requireAuth(req, res, next) {
 }
 
 // ------------------------
-// ADMIN LOGIN ROUTE 
+// ------------------------
+// ADMIN LOGIN ROUTE (USERNAME ONLY)
 // ------------------------
 app.post("/api/admin/login", (req, res) => {
-  const { username, password } = req.body;
+  const { username } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: "Username and password are required" });
+  if (!username) {
+    return res.status(400).json({ message: "Username is required" });
   }
 
   db.query(
@@ -102,14 +103,9 @@ app.post("/api/admin/login", (req, res) => {
 
       const user = results[0];
 
-      // DYNAMIC USERNAME CHECK
+      // Username check (not really needed since query already filters)
       if (username !== user.username) {
         return res.status(401).json({ message: "Invalid username" });
-      }
-
-      // DYNAMIC PASSWORD CHECK
-      if (password !== user.pw) {
-        return res.status(401).json({ message: "Invalid password" });
       }
 
       // SUPERADMIN CHECK
@@ -139,6 +135,7 @@ app.post("/api/admin/login", (req, res) => {
     }
   );
 });
+
 
 // ------------------------
 // Verify token

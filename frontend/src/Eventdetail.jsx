@@ -2,13 +2,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft, Pencil } from "lucide-react";
-import { getToken } from "./utils";
+import { getToken } from "./utils"; // function to get token from localStorage
 import { formatDate } from "./formatdate";
+import { BASE_URL } from "./config";
+
 
 export default function EventDetail() {
   const { id } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,20 +19,35 @@ export default function EventDetail() {
 
     const fetchEvent = async () => {
       setLoading(true);
-      try {
-        const token = getToken();
+      setError(null);
 
-        const res = await fetch(`http://localhost:5000/events/${id}`, {
+      try {
+        const token = getToken(); // get JWT token from localStorage
+        if (!token) {
+          throw new Error("No token found. Please login.");
+        }
+
+        const res = await fetch(`${BASE_URL}/events/${id}`, {
+          method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // MUST include token
           },
         });
 
+        if (res.status === 401) {
+          throw new Error("Unauthorized. Please login again.");
+        }
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.message || "Failed to fetch event.");
+        }
+
         const data = await res.json();
         if (mounted) setEvent(data);
-
       } catch (err) {
         console.error("Failed to fetch event:", err);
+        if (mounted) setError(err.message);
         setEvent(null);
       } finally {
         if (mounted) setLoading(false);
@@ -37,10 +55,11 @@ export default function EventDetail() {
     };
 
     fetchEvent();
-    return () => { mounted = false };
+    return () => { mounted = false; };
   }, [id]);
 
   if (loading) return <div>Loading event…</div>;
+  if (error) return <div className="text-red-600">Error: {error}</div>;
   if (!event) return <div>Event not found</div>;
 
   const e = {
@@ -62,11 +81,9 @@ export default function EventDetail() {
 
   return (
     <div className="space-y-6">
-
       {/* Header */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-black mb-2">Event Detail</h2>
-
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/events")}
@@ -143,9 +160,6 @@ export default function EventDetail() {
           </tbody>
         </table>
       </div>
-
-
-
     </div>
   );
 }

@@ -10,7 +10,7 @@ import {
   ArrowDown,
 } from "lucide-react";
 import { getToken } from "./utils";
-import { limit } from "./config";
+import { BASE_URL, limit } from "./config";
 
 // ⬅️ NEW: import date formatter
 import { formatDate } from "./formatdate";
@@ -29,7 +29,7 @@ export default function EventsList() {
     try {
       const token = getToken();
       const res = await fetch(
-        `http://localhost:5000/events?limit=${limit}&offset=${offset}&search=${encodeURIComponent(
+        `${BASE_URL}/events?limit=${limit}&offset=${offset}&search=${encodeURIComponent(
           search
         )}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
         {
